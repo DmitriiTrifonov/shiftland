@@ -1,0 +1,173 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://characters/player.gd" id="1_j31ep"]
+[ext_resource type="Shader" path="res://shaders/tint.gdshader" id="2_6t23p"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/circle.png" id="3_n8jd0"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/triangle.png" id="4_q605b"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/square.png" id="5_eho78"]
+[ext_resource type="Script" path="res://characters/face_controller.gd" id="6_8sqrr"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/faces/face_1.png" id="7_6rrl0"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_eus45"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vcag3"]
+shader = ExtResource("2_6t23p")
+shader_parameter/tint_color = Color(0.06, 0.62, 0.58, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h076o"]
+shader = ExtResource("2_6t23p")
+shader_parameter/tint_color = Color(0.02, 0.18, 0.16, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lcfw7"]
+radius = 40.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_b0vde"]
+radius = 28.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ke0a4"]
+shader = ExtResource("2_6t23p")
+shader_parameter/tint_color = Color(0.83, 0.33, 0.12, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_41yun"]
+radius = 16.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_svrv0"]
+size = Vector2(48, 56)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4rspn"]
+shader = ExtResource("2_6t23p")
+shader_parameter/tint_color = Color(0.71, 0.53, 0.06, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hsn1j"]
+radius = 24.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dx8gg"]
+size = Vector2(56, 56)
+
+[node name="Player" type="RigidBody2D" unique_id=770963926]
+physics_material_override = SubResource("PhysicsMaterial_eus45")
+lock_rotation = true
+continuous_cd = 2
+contact_monitor = true
+max_contacts_reported = 8
+script = ExtResource("1_j31ep")
+
+[node name="GroundCheck" type="RayCast2D" parent="." unique_id=795650058]
+target_position = Vector2(0, 40)
+
+[node name="CircleForm" type="Node2D" parent="." unique_id=1646041141]
+
+[node name="CircleSprite" type="Sprite2D" parent="CircleForm" unique_id=9699903]
+material = SubResource("ShaderMaterial_vcag3")
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("3_n8jd0")
+
+[node name="SpinMarker" type="Sprite2D" parent="CircleForm" unique_id=892846205]
+material = SubResource("ShaderMaterial_h076o")
+position = Vector2(0, -20)
+scale = Vector2(0.06, 0.06)
+texture = ExtResource("3_n8jd0")
+
+[node name="SpinAttackArea" type="Area2D" parent="CircleForm" unique_id=1076941201]
+
+[node name="SpinAttackShape" type="CollisionShape2D" parent="CircleForm/SpinAttackArea" unique_id=1480755306]
+shape = SubResource("CircleShape2D_lcfw7")
+disabled = true
+
+[node name="CircleCollision" type="CollisionShape2D" parent="." unique_id=906207202]
+shape = SubResource("CircleShape2D_b0vde")
+
+[node name="TriangleForm" type="Node2D" parent="." unique_id=228697728]
+visible = false
+
+[node name="Corpus" type="Node2D" parent="TriangleForm" unique_id=1424561961]
+position = Vector2(0, 12.08)
+
+[node name="TriangleSprite" type="Sprite2D" parent="TriangleForm/Corpus" unique_id=2000161162]
+material = SubResource("ShaderMaterial_ke0a4")
+position = Vector2(0, -12.08)
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("4_q605b")
+
+[node name="PointAttackArea" type="Area2D" parent="TriangleForm/Corpus" unique_id=812477604]
+position = Vector2(0, -52.08)
+
+[node name="PointAttackShape" type="CollisionShape2D" parent="TriangleForm/Corpus/PointAttackArea" unique_id=1784347399]
+shape = SubResource("CircleShape2D_41yun")
+disabled = true
+
+[node name="Legs" type="Node2D" parent="TriangleForm" unique_id=1061704974]
+z_index = -1
+
+[node name="RayL" type="RayCast2D" parent="TriangleForm/Legs" unique_id=627158375]
+position = Vector2(-14, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineL" type="Line2D" parent="TriangleForm/Legs" unique_id=1696930928]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="RayR" type="RayCast2D" parent="TriangleForm/Legs" unique_id=1770404849]
+position = Vector2(14, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineR" type="Line2D" parent="TriangleForm/Legs" unique_id=703385122]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="TriangleCollision" type="CollisionShape2D" parent="." unique_id=901437934]
+shape = SubResource("RectangleShape2D_svrv0")
+disabled = true
+
+[node name="SquareForm" type="Node2D" parent="." unique_id=88910645]
+visible = false
+
+[node name="SquareSprite" type="Sprite2D" parent="SquareForm" unique_id=1771007681]
+material = SubResource("ShaderMaterial_4rspn")
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("5_eho78")
+
+[node name="Legs" type="Node2D" parent="SquareForm" unique_id=1545843398]
+z_index = -1
+
+[node name="RayL" type="RayCast2D" parent="SquareForm/Legs" unique_id=683045401]
+position = Vector2(-16, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineL" type="Line2D" parent="SquareForm/Legs" unique_id=1474007504]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="RayR" type="RayCast2D" parent="SquareForm/Legs" unique_id=910174588]
+position = Vector2(16, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineR" type="Line2D" parent="SquareForm/Legs" unique_id=545992527]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="AttackArea" type="Area2D" parent="SquareForm" unique_id=1750264917]
+
+[node name="AttackShape" type="CollisionShape2D" parent="SquareForm/AttackArea" unique_id=2037487320]
+shape = SubResource("CircleShape2D_hsn1j")
+disabled = true
+
+[node name="SquareCollision" type="CollisionShape2D" parent="." unique_id=982916338]
+shape = SubResource("RectangleShape2D_dx8gg")
+disabled = true
+
+[node name="Face" type="Node2D" parent="." unique_id=621692519]
+script = ExtResource("6_8sqrr")
+
+[node name="FaceSprite" type="Sprite2D" parent="Face" unique_id=1724760641]
+scale = Vector2(0.16, 0.16)
+texture = ExtResource("7_6rrl0")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1129031223]
+zoom = Vector2(1.3, 1.3)
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[connection signal="body_entered" from="CircleForm/SpinAttackArea" to="." method="_on_spin_hit"]
+[connection signal="body_entered" from="TriangleForm/Corpus/PointAttackArea" to="." method="_on_point_hit"]
+[connection signal="body_entered" from="SquareForm/AttackArea" to="." method="_on_square_hit"]
