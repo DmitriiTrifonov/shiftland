@@ -11,7 +11,15 @@ func _init() -> void:
 	_configure_input_map()
 	_build_player_scene()
 	_build_tech_demo_scene()
+	_build_level_01_scene()
 	ProjectSettings.set_setting("application/run/main_scene", "res://levels/tech_demo.tscn")
+	# Doubled from the 60 default — at the spin-dash's top speed (up to
+	# 3000 px/s) a single 60Hz physics step can cover 50 units, easily
+	# clearing thin geometry before collision response ever sees it. 120Hz
+	# halves that per-step travel, which combined with CCD_MODE_CAST_SHAPE
+	# on the player and thickened walls (see level geometry) is what
+	# actually stopped the tunneling (bug report: "Круг пробивает коллизию").
+	ProjectSettings.set_setting("physics/common/physics_ticks_per_second", 120)
 	ProjectSettings.save()
 	print("build_scenes: done")
 	quit()
@@ -337,8 +345,13 @@ func _build_tech_demo_scene() -> void:
 	_make_box(root, root, "Slope", Vector2(-280.0, 340.0), Vector2(260.0, 30.0), -22.0, Color(0.3, 0.32, 0.36))
 	# Ground is finite (x in [-600, 1400]) — without these, walking/rolling off
 	# either end drops the player into empty space with nothing below.
-	_make_box(root, root, "WallLeft", Vector2(-590.0, 100.0), Vector2(20.0, 700.0), 0.0, Color(0.2, 0.21, 0.24))
-	_make_box(root, root, "WallRight", Vector2(1390.0, 100.0), Vector2(20.0, 700.0), 0.0, Color(0.2, 0.21, 0.24))
+	# Thickened from 20 to 50 — at spin-dash top speed (up to 3000 px/s) a
+	# fast Circle can cover more than 20 units in a single physics step, and
+	# CCD_MODE_CAST_SHAPE on the player (see _build_player) is best-effort,
+	# not a hard guarantee — a wall has to be thick enough that a one-step
+	# overshoot still lands inside it, not clean through the far side.
+	_make_box(root, root, "WallLeft", Vector2(-590.0, 100.0), Vector2(50.0, 700.0), 0.0, Color(0.2, 0.21, 0.24))
+	_make_box(root, root, "WallRight", Vector2(1390.0, 100.0), Vector2(50.0, 700.0), 0.0, Color(0.2, 0.21, 0.24))
 
 	var crate_positions := [Vector2(150.0, 340.0), Vector2(250.0, 340.0), Vector2(600.0, 340.0), Vector2(700.0, 340.0)]
 	var crate_index := 0
@@ -384,3 +397,125 @@ func _build_tech_demo_scene() -> void:
 	var pack_err := packed.pack(root)
 	var save_err := ResourceSaver.save(packed, "res://levels/tech_demo.tscn")
 	print("build_scenes: tech_demo.tscn pack=%s save=%s" % [pack_err, save_err])
+
+
+## First real content level (GDD §14 step 2): start platforming → wedge-lever
+## puzzle opening a static ramp → arena with a few enemies → end zone.
+## Triangle-ramp per GDD §6/§14, adapted for one shapeshifting body (see plan):
+## the ramp itself is static level geometry, Triangle's job is only to plant
+## a wedge in the lever groove to remove the Gate blocking its base, then the
+## player becomes Circle to actually roll up it.
+func _build_level_01_scene() -> void:
+	var root := Node2D.new()
+	root.name = "Level01"
+
+	# --- Start platforming segment ---
+	_make_box(root, root, "Ground1", Vector2(300.0, 400.0), Vector2(900.0, 40.0), 0.0, Color(0.25, 0.26, 0.3))
+	_make_box(root, root, "WallLeft", Vector2(-160.0, 100.0), Vector2(50.0, 700.0), 0.0, Color(0.2, 0.21, 0.24))
+
+	# --- Wedge-lever puzzle: plant a Triangle wedge here to drop the Gate ---
+	var lever := Area2D.new()
+	lever.name = "Lever"
+	lever.position = Vector2(680.0, 362.0)
+	lever.script = load("res://characters/lever.gd")
+	_own(root, lever, root)
+	lever.set("gate_path", NodePath("../Gate"))
+
+	var lever_collision := CollisionShape2D.new()
+	lever_collision.name = "Collision"
+	var lever_shape := RectangleShape2D.new()
+	lever_shape.size = Vector2(40.0, 36.0)
+	lever_collision.shape = lever_shape
+	_own(root, lever_collision, lever)
+
+	var lever_marker := Polygon2D.new()
+	lever_marker.name = "Marker"
+	lever_marker.polygon = PackedVector2Array([
+		Vector2(-16.0, -14.0), Vector2(16.0, -14.0), Vector2(16.0, 14.0), Vector2(-16.0, 14.0),
+	])
+	lever_marker.color = Color(0.85, 0.7, 0.2)
+	_own(root, lever_marker, lever)
+
+	_make_box(root, root, "Gate", Vector2(780.0, 340.0), Vector2(30.0, 100.0), 0.0, Color(0.55, 0.2, 0.2))
+
+	# --- Ramp up to the arena (rises left-to-right; see lever.gd/Gate above) ---
+	# Shallow on purpose (was -25°, launched a spin-dash Circle clean over the
+	# arena and past WallRight — verified live via MCP: at a modest 1200 px/s
+	# roll speed it was already 100+ units above the arena floor and still
+	# climbing by the time it reached Ground2's far wall). -14° keeps far more
+	# of the roll speed horizontal instead of converting it into vertical
+	# launch at the top edge.
+	_make_box(root, root, "Slope", Vector2(950.0, 320.0), Vector2(320.0, 30.0), -14.0, Color(0.3, 0.32, 0.36))
+
+	# --- Arena: a few simple chaser enemies (GDD §8) ---
+	_make_box(root, root, "Ground2", Vector2(1300.0, 290.0), Vector2(500.0, 40.0), 0.0, Color(0.25, 0.26, 0.3))
+	_make_box(root, root, "WallRight", Vector2(1560.0, 90.0), Vector2(50.0, 400.0), 0.0, Color(0.2, 0.21, 0.24))
+	# Safety net, not just decoration: even with the gentler ramp, a
+	# full-charge spin-dash (up to 3000 px/s) can still leave the ramp with
+	# real air. A low roof over the arena catches any overshoot and drops it
+	# back onto Ground2 instead of letting it sail over WallRight into the void.
+	# Stops short of WallRight (left face at 1535) rather than meeting it —
+	# verified live that letting them share a corner wedges a fast Circle
+	# into that exact pocket (touching both faces at once) and pins it there
+	# indefinitely instead of falling through to the floor.
+	_make_box(root, root, "RoofArena", Vector2(1275.0, 120.0), Vector2(450.0, 20.0), 0.0, Color(0.2, 0.21, 0.24))
+
+	var enemy_positions := [Vector2(1200.0, 240.0), Vector2(1320.0, 240.0), Vector2(1440.0, 240.0)]
+	var enemy_index := 0
+	for pos in enemy_positions:
+		enemy_index += 1
+		var enemy := RigidBody2D.new()
+		enemy.name = "Enemy%d" % enemy_index
+		enemy.position = pos
+		enemy.script = load("res://characters/enemy.gd")
+		_own(root, enemy, root)
+
+		var enemy_collision := CollisionShape2D.new()
+		enemy_collision.name = "Collision"
+		var enemy_shape := RectangleShape2D.new()
+		enemy_shape.size = Vector2(28.0, 28.0)
+		enemy_collision.shape = enemy_shape
+		_own(root, enemy_collision, enemy)
+
+		var enemy_visual := Polygon2D.new()
+		enemy_visual.name = "Visual"
+		enemy_visual.polygon = PackedVector2Array([
+			Vector2(-14.0, -14.0), Vector2(14.0, -14.0), Vector2(14.0, 14.0), Vector2(-14.0, 14.0),
+		])
+		enemy_visual.color = Color(0.55, 0.25, 0.65)
+		_own(root, enemy_visual, enemy)
+
+	# --- End zone ---
+	var end_zone := Area2D.new()
+	end_zone.name = "EndZone"
+	end_zone.position = Vector2(1520.0, 250.0)
+	_own(root, end_zone, root)
+
+	var end_zone_collision := CollisionShape2D.new()
+	end_zone_collision.name = "Collision"
+	var end_zone_shape := RectangleShape2D.new()
+	end_zone_shape.size = Vector2(40.0, 120.0)
+	end_zone_collision.shape = end_zone_shape
+	_own(root, end_zone_collision, end_zone)
+
+	var player := _build_player(root, root)
+	player.position = Vector2(0.0, 250.0)
+
+	var hud := CanvasLayer.new()
+	hud.name = "HUD"
+	hud.script = load("res://levels/level_01_hud.gd")
+	_own(root, hud, root)
+	hud.set("player_path", NodePath("../Player"))
+
+	var label := Label.new()
+	label.name = "DebugLabel"
+	label.position = Vector2(16.0, 16.0)
+	label.add_theme_font_size_override("font_size", 20)
+	_own(root, label, hud)
+
+	end_zone.body_entered.connect(Callable(hud, "_on_end_zone_entered"), CONNECT_PERSIST)
+
+	var level_packed := PackedScene.new()
+	var level_pack_err := level_packed.pack(root)
+	var level_save_err := ResourceSaver.save(level_packed, "res://levels/level_01.tscn")
+	print("build_scenes: level_01.tscn pack=%s save=%s" % [level_pack_err, level_save_err])

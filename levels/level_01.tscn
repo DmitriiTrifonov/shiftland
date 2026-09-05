@@ -1,0 +1,349 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://characters/lever.gd" id="1_5dxk1"]
+[ext_resource type="Script" path="res://characters/enemy.gd" id="2_kjd3d"]
+[ext_resource type="Script" path="res://characters/player.gd" id="3_qdeet"]
+[ext_resource type="Shader" path="res://shaders/tint.gdshader" id="4_y72ps"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/circle.png" id="5_xw3ee"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/triangle.png" id="6_l0eo6"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/square.png" id="7_d3o6j"]
+[ext_resource type="Script" path="res://characters/face_controller.gd" id="8_pdl2l"]
+[ext_resource type="Texture2D" path="res://assets/images/engine/faces/face_1.png" id="9_2t17w"]
+[ext_resource type="Script" path="res://levels/level_01_hud.gd" id="10_bm28l"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2qse1"]
+size = Vector2(900, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xt52j"]
+size = Vector2(50, 700)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m68c3"]
+size = Vector2(40, 36)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p6fww"]
+size = Vector2(30, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6g61c"]
+size = Vector2(320, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g2xra"]
+size = Vector2(500, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bkw67"]
+size = Vector2(50, 400)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_40vlm"]
+size = Vector2(450, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q27ur"]
+size = Vector2(28, 28)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_685d6"]
+size = Vector2(28, 28)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6044w"]
+size = Vector2(28, 28)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t6f3f"]
+size = Vector2(40, 120)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_5mixh"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d8db5"]
+shader = ExtResource("4_y72ps")
+shader_parameter/tint_color = Color(0.06, 0.62, 0.58, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_17fik"]
+shader = ExtResource("4_y72ps")
+shader_parameter/tint_color = Color(0.02, 0.18, 0.16, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_glh43"]
+radius = 40.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gc0ex"]
+radius = 28.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o20oj"]
+shader = ExtResource("4_y72ps")
+shader_parameter/tint_color = Color(0.83, 0.33, 0.12, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yxcem"]
+radius = 16.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l1v2b"]
+size = Vector2(48, 56)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hxpdb"]
+shader = ExtResource("4_y72ps")
+shader_parameter/tint_color = Color(0.71, 0.53, 0.06, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8q13s"]
+radius = 24.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sk0g4"]
+size = Vector2(56, 56)
+
+[node name="Level01" type="Node2D" unique_id=2014817952]
+
+[node name="Ground1" type="StaticBody2D" parent="." unique_id=1255117386]
+position = Vector2(300, 400)
+
+[node name="Collision" type="CollisionShape2D" parent="Ground1" unique_id=1976531113]
+shape = SubResource("RectangleShape2D_2qse1")
+
+[node name="Visual" type="Polygon2D" parent="Ground1" unique_id=1656803467]
+color = Color(0.25, 0.26, 0.3, 1)
+polygon = PackedVector2Array(-450, -20, 450, -20, 450, 20, -450, 20)
+
+[node name="WallLeft" type="StaticBody2D" parent="." unique_id=410889325]
+position = Vector2(-160, 100)
+
+[node name="Collision" type="CollisionShape2D" parent="WallLeft" unique_id=1437204805]
+shape = SubResource("RectangleShape2D_xt52j")
+
+[node name="Visual" type="Polygon2D" parent="WallLeft" unique_id=1476935134]
+color = Color(0.2, 0.21, 0.24, 1)
+polygon = PackedVector2Array(-25, -350, 25, -350, 25, 350, -25, 350)
+
+[node name="Lever" type="Area2D" parent="." unique_id=1941420272]
+position = Vector2(680, 362)
+script = ExtResource("1_5dxk1")
+gate_path = NodePath("../Gate")
+
+[node name="Collision" type="CollisionShape2D" parent="Lever" unique_id=1984892227]
+shape = SubResource("RectangleShape2D_m68c3")
+
+[node name="Marker" type="Polygon2D" parent="Lever" unique_id=1631791008]
+color = Color(0.85, 0.7, 0.2, 1)
+polygon = PackedVector2Array(-16, -14, 16, -14, 16, 14, -16, 14)
+
+[node name="Gate" type="StaticBody2D" parent="." unique_id=1298321198]
+position = Vector2(780, 340)
+
+[node name="Collision" type="CollisionShape2D" parent="Gate" unique_id=1327068550]
+shape = SubResource("RectangleShape2D_p6fww")
+
+[node name="Visual" type="Polygon2D" parent="Gate" unique_id=2025931503]
+color = Color(0.55, 0.2, 0.2, 1)
+polygon = PackedVector2Array(-15, -50, 15, -50, 15, 50, -15, 50)
+
+[node name="Slope" type="StaticBody2D" parent="." unique_id=1811312578]
+position = Vector2(950, 320)
+rotation = -0.2443461
+
+[node name="Collision" type="CollisionShape2D" parent="Slope" unique_id=1124398805]
+shape = SubResource("RectangleShape2D_6g61c")
+
+[node name="Visual" type="Polygon2D" parent="Slope" unique_id=1629478333]
+color = Color(0.3, 0.32, 0.36, 1)
+polygon = PackedVector2Array(-160, -15, 160, -15, 160, 15, -160, 15)
+
+[node name="Ground2" type="StaticBody2D" parent="." unique_id=894696717]
+position = Vector2(1300, 290)
+
+[node name="Collision" type="CollisionShape2D" parent="Ground2" unique_id=1570400923]
+shape = SubResource("RectangleShape2D_g2xra")
+
+[node name="Visual" type="Polygon2D" parent="Ground2" unique_id=1062436001]
+color = Color(0.25, 0.26, 0.3, 1)
+polygon = PackedVector2Array(-250, -20, 250, -20, 250, 20, -250, 20)
+
+[node name="WallRight" type="StaticBody2D" parent="." unique_id=395189336]
+position = Vector2(1560, 90)
+
+[node name="Collision" type="CollisionShape2D" parent="WallRight" unique_id=1811380548]
+shape = SubResource("RectangleShape2D_bkw67")
+
+[node name="Visual" type="Polygon2D" parent="WallRight" unique_id=1776645535]
+color = Color(0.2, 0.21, 0.24, 1)
+polygon = PackedVector2Array(-25, -200, 25, -200, 25, 200, -25, 200)
+
+[node name="RoofArena" type="StaticBody2D" parent="." unique_id=1139429450]
+position = Vector2(1275, 120)
+
+[node name="Collision" type="CollisionShape2D" parent="RoofArena" unique_id=79987082]
+shape = SubResource("RectangleShape2D_40vlm")
+
+[node name="Visual" type="Polygon2D" parent="RoofArena" unique_id=51268826]
+color = Color(0.2, 0.21, 0.24, 1)
+polygon = PackedVector2Array(-225, -10, 225, -10, 225, 10, -225, 10)
+
+[node name="Enemy1" type="RigidBody2D" parent="." unique_id=125594330]
+position = Vector2(1200, 240)
+script = ExtResource("2_kjd3d")
+
+[node name="Collision" type="CollisionShape2D" parent="Enemy1" unique_id=1266343253]
+shape = SubResource("RectangleShape2D_q27ur")
+
+[node name="Visual" type="Polygon2D" parent="Enemy1" unique_id=1018645797]
+color = Color(0.55, 0.25, 0.65, 1)
+polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
+
+[node name="Enemy2" type="RigidBody2D" parent="." unique_id=32786087]
+position = Vector2(1320, 240)
+script = ExtResource("2_kjd3d")
+
+[node name="Collision" type="CollisionShape2D" parent="Enemy2" unique_id=2099045417]
+shape = SubResource("RectangleShape2D_685d6")
+
+[node name="Visual" type="Polygon2D" parent="Enemy2" unique_id=1298520714]
+color = Color(0.55, 0.25, 0.65, 1)
+polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
+
+[node name="Enemy3" type="RigidBody2D" parent="." unique_id=834344388]
+position = Vector2(1440, 240)
+script = ExtResource("2_kjd3d")
+
+[node name="Collision" type="CollisionShape2D" parent="Enemy3" unique_id=1252820587]
+shape = SubResource("RectangleShape2D_6044w")
+
+[node name="Visual" type="Polygon2D" parent="Enemy3" unique_id=1124817361]
+color = Color(0.55, 0.25, 0.65, 1)
+polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
+
+[node name="EndZone" type="Area2D" parent="." unique_id=2083744286]
+position = Vector2(1520, 250)
+
+[node name="Collision" type="CollisionShape2D" parent="EndZone" unique_id=1791442303]
+shape = SubResource("RectangleShape2D_t6f3f")
+
+[node name="Player" type="RigidBody2D" parent="." unique_id=715904977]
+position = Vector2(0, 250)
+physics_material_override = SubResource("PhysicsMaterial_5mixh")
+lock_rotation = true
+continuous_cd = 2
+contact_monitor = true
+max_contacts_reported = 8
+script = ExtResource("3_qdeet")
+
+[node name="GroundCheck" type="RayCast2D" parent="Player" unique_id=1799972683]
+target_position = Vector2(0, 40)
+
+[node name="CircleForm" type="Node2D" parent="Player" unique_id=1709979130]
+
+[node name="CircleSprite" type="Sprite2D" parent="Player/CircleForm" unique_id=1173032261]
+material = SubResource("ShaderMaterial_d8db5")
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("5_xw3ee")
+
+[node name="SpinMarker" type="Sprite2D" parent="Player/CircleForm" unique_id=596404745]
+material = SubResource("ShaderMaterial_17fik")
+position = Vector2(0, -20)
+scale = Vector2(0.06, 0.06)
+texture = ExtResource("5_xw3ee")
+
+[node name="SpinAttackArea" type="Area2D" parent="Player/CircleForm" unique_id=114321875]
+
+[node name="SpinAttackShape" type="CollisionShape2D" parent="Player/CircleForm/SpinAttackArea" unique_id=1318184229]
+shape = SubResource("CircleShape2D_glh43")
+disabled = true
+
+[node name="CircleCollision" type="CollisionShape2D" parent="Player" unique_id=694363079]
+shape = SubResource("CircleShape2D_gc0ex")
+
+[node name="TriangleForm" type="Node2D" parent="Player" unique_id=1283634921]
+visible = false
+
+[node name="Corpus" type="Node2D" parent="Player/TriangleForm" unique_id=2078908508]
+position = Vector2(0, 12.08)
+
+[node name="TriangleSprite" type="Sprite2D" parent="Player/TriangleForm/Corpus" unique_id=877411845]
+material = SubResource("ShaderMaterial_o20oj")
+position = Vector2(0, -12.08)
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("6_l0eo6")
+
+[node name="PointAttackArea" type="Area2D" parent="Player/TriangleForm/Corpus" unique_id=28904623]
+position = Vector2(0, -52.08)
+
+[node name="PointAttackShape" type="CollisionShape2D" parent="Player/TriangleForm/Corpus/PointAttackArea" unique_id=662129732]
+shape = SubResource("CircleShape2D_yxcem")
+disabled = true
+
+[node name="Legs" type="Node2D" parent="Player/TriangleForm" unique_id=1479785961]
+z_index = -1
+
+[node name="RayL" type="RayCast2D" parent="Player/TriangleForm/Legs" unique_id=814349489]
+position = Vector2(-14, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineL" type="Line2D" parent="Player/TriangleForm/Legs" unique_id=561973733]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="RayR" type="RayCast2D" parent="Player/TriangleForm/Legs" unique_id=1725228761]
+position = Vector2(14, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineR" type="Line2D" parent="Player/TriangleForm/Legs" unique_id=917333534]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="TriangleCollision" type="CollisionShape2D" parent="Player" unique_id=1920698462]
+shape = SubResource("RectangleShape2D_l1v2b")
+disabled = true
+
+[node name="SquareForm" type="Node2D" parent="Player" unique_id=1015593222]
+visible = false
+
+[node name="SquareSprite" type="Sprite2D" parent="Player/SquareForm" unique_id=2019528361]
+material = SubResource("ShaderMaterial_hxpdb")
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("7_d3o6j")
+
+[node name="Legs" type="Node2D" parent="Player/SquareForm" unique_id=1866437627]
+z_index = -1
+
+[node name="RayL" type="RayCast2D" parent="Player/SquareForm/Legs" unique_id=522583373]
+position = Vector2(-16, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineL" type="Line2D" parent="Player/SquareForm/Legs" unique_id=1332577715]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="RayR" type="RayCast2D" parent="Player/SquareForm/Legs" unique_id=1426325876]
+position = Vector2(16, 0)
+target_position = Vector2(0, 40)
+
+[node name="LineR" type="Line2D" parent="Player/SquareForm/Legs" unique_id=969540761]
+width = 5.0
+default_color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="AttackArea" type="Area2D" parent="Player/SquareForm" unique_id=588138188]
+
+[node name="AttackShape" type="CollisionShape2D" parent="Player/SquareForm/AttackArea" unique_id=138647940]
+shape = SubResource("CircleShape2D_8q13s")
+disabled = true
+
+[node name="SquareCollision" type="CollisionShape2D" parent="Player" unique_id=937535655]
+shape = SubResource("RectangleShape2D_sk0g4")
+disabled = true
+
+[node name="Face" type="Node2D" parent="Player" unique_id=886808942]
+script = ExtResource("8_pdl2l")
+
+[node name="FaceSprite" type="Sprite2D" parent="Player/Face" unique_id=355039679]
+scale = Vector2(0.16, 0.16)
+texture = ExtResource("9_2t17w")
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=868222232]
+zoom = Vector2(1.3, 1.3)
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=353551758]
+script = ExtResource("10_bm28l")
+player_path = NodePath("../Player")
+
+[node name="DebugLabel" type="Label" parent="HUD" unique_id=1809560228]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 16.0
+offset_bottom = 16.0
+theme_override_font_sizes/font_size = 20
+
+[connection signal="body_entered" from="EndZone" to="HUD" method="_on_end_zone_entered"]
+[connection signal="body_entered" from="Player/CircleForm/SpinAttackArea" to="Player" method="_on_spin_hit"]
+[connection signal="body_entered" from="Player/TriangleForm/Corpus/PointAttackArea" to="Player" method="_on_point_hit"]
+[connection signal="body_entered" from="Player/SquareForm/AttackArea" to="Player" method="_on_square_hit"]

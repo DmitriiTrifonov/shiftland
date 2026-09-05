@@ -145,6 +145,7 @@ var stick_winding := false
 var prev_stick_angle := 0.0
 var circle_roll_speed := 0.0
 var circle_roll_dir := 0.0
+var circle_roll_prev_speed := 0.0
 var wedge_active := false
 var wedge_release_timer := 0.0
 var spin_marker_base_offset := Vector2.ZERO
@@ -168,6 +169,7 @@ var spin_marker_base_offset := Vector2.ZERO
 
 
 func _ready() -> void:
+	add_to_group("player")
 	spin_marker_base_offset = spin_marker.position
 	_set_form(current_form)
 
@@ -283,13 +285,30 @@ func _process_circle(delta: float) -> void:
 		# stomped to 0 just for standing in Circle form without having
 		# charged anything (GDD §5: form switches never touch linear_velocity).
 		if circle_roll_dir != 0.0:
-			circle_roll_speed = maxf(circle_roll_speed - CIRCLE_ROLL_FRICTION * delta, 0.0)
-			if circle_roll_speed <= 0.0:
+			# Hitting a wall dead-on used to pin the ball there indefinitely
+			# instead of falling: re-asserting linear_velocity.x into the same
+			# solid obstacle every single frame keeps generating a real normal
+			# force, and with friction=1.0 that's enough lateral grip to cancel
+			# gravity too — verified live via MCP (rolled into WallRight, got
+			# stuck floating mid-air at the wall face until roll_speed decayed
+			# away on its own several seconds later). Detected by comparing
+			# actual speed against what last frame commanded: a genuine wall
+			# stop kills nearly all of it in a single step, whereas riding up
+			# a slope changes direction but not speed anywhere near that fast.
+			if circle_roll_prev_speed > 0.0 and linear_velocity.length() < circle_roll_prev_speed * 0.25:
+				circle_roll_speed = 0.0
 				circle_roll_dir = 0.0
-			linear_velocity.x = circle_roll_dir * circle_roll_speed
-			angular_velocity = circle_roll_dir * clampf(circle_roll_speed / CIRCLE_RADIUS, 0.0, CIRCLE_MAX_ANGULAR_VELOCITY)
+				circle_roll_prev_speed = 0.0
+			else:
+				circle_roll_speed = maxf(circle_roll_speed - CIRCLE_ROLL_FRICTION * delta, 0.0)
+				if circle_roll_speed <= 0.0:
+					circle_roll_dir = 0.0
+				linear_velocity.x = circle_roll_dir * circle_roll_speed
+				angular_velocity = circle_roll_dir * clampf(circle_roll_speed / CIRCLE_RADIUS, 0.0, CIRCLE_MAX_ANGULAR_VELOCITY)
+				circle_roll_prev_speed = circle_roll_speed
 		else:
 			angular_velocity = 0.0
+			circle_roll_prev_speed = 0.0
 
 	# While charge is held, the marker winds forward in the direction the
 	# launch will send it — a preview of which way it's about to take off,
@@ -503,6 +522,7 @@ func _set_form(new_form: int) -> void:
 	# leftover speed the instant _process_circle runs again.
 	circle_roll_speed = 0.0
 	circle_roll_dir = 0.0
+	circle_roll_prev_speed = 0.0
 	wedge_active = false
 	wedge_release_timer = 0.0
 	# aim_is_from_stick deliberately NOT reset here, same as aim_angle isn't:
@@ -598,3 +618,9 @@ func _apply_knockback(body: Node2D, strength: float) -> void:
 	if dir.length() < 0.01:
 		dir = Vector2.RIGHT
 	body.apply_central_impulse(dir.normalized() * strength)
+	# Duck-typed damage hook: crates and other plain RigidBody2D targets have
+	# no take_hit method and are unaffected — only actual enemies (characters/
+	# enemy.gd) respond, so every attack's existing knockback also damages
+	# anything that opts in, with zero changes needed at the call sites.
+	if body.has_method("take_hit"):
+		body.take_hit(1)
